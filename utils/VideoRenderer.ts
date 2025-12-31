@@ -649,7 +649,6 @@ export class VideoRenderer {
 
     public stop() {
         if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
-            this.mediaRecorder.requestData(); // FLUSH FINAL FRAMES
             this.mediaRecorder.stop();
         }
         cancelAnimationFrame(this.animationFrameId);
