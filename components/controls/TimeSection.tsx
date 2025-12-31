@@ -30,11 +30,18 @@ export const TimeSection: React.FC<TimeSectionProps> = ({ duration, setDuration,
                         <input
                             type="number"
                             value={duration}
-                            onChange={(e) => setDuration(Math.max(1, Number(e.target.value)))}
+                            onChange={(e) => {
+                                const val = Number(e.target.value);
+                                // Limit to 1 hour (3600s) to prevent crash
+                                if (val > 3600) setDuration(3600);
+                                else setDuration(Math.max(1, val));
+                            }}
+                            max={3600}
                             disabled={disabled}
                             className="w-16 bg-slate-700 border border-slate-600 rounded px-1 text-right text-xs focus:ring-1 focus:ring-indigo-500 outline-none disabled:opacity-50"
                         />
                         <span>seg</span>
+                        <span className="text-[10px] text-slate-500 ml-1">(Max: 1h)</span>
                     </div>
                 </div>
                 <div className="flex items-center gap-4">
