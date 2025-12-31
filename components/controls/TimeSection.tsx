@@ -1,0 +1,56 @@
+import React from 'react';
+import { Clock } from 'lucide-react';
+
+interface TimeSectionProps {
+    duration: number;
+    setDuration: (m: number) => void;
+    disabled?: boolean;
+}
+
+export const TimeSection: React.FC<TimeSectionProps> = ({ duration, setDuration, disabled = false }) => {
+
+    const formatDurationLabel = (seconds: number) => {
+        if (seconds < 60) return `${seconds}s`;
+        const m = Math.floor(seconds / 60);
+        const s = seconds % 60;
+        return s > 0 ? `${m}m ${s}s` : `${m}m`;
+    };
+
+    return (
+        <div className="space-y-3 p-4 bg-slate-800/50 rounded-lg border border-slate-700">
+            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                <Clock className="w-4 h-4" /> Tempo (Duração)
+            </label>
+            <div className="space-y-2">
+                <div className="flex justify-between text-xs text-slate-400">
+                    <span>Ajustar (Segundos)</span>
+                    <div className="flex items-center gap-1">
+                        <input
+                            type="number"
+                            value={duration}
+                            onChange={(e) => setDuration(Math.max(1, Number(e.target.value)))}
+                            disabled={disabled}
+                            className="w-16 bg-slate-700 border border-slate-600 rounded px-1 text-right text-xs focus:ring-1 focus:ring-indigo-500 outline-none disabled:opacity-50"
+                        />
+                        <span>seg</span>
+                    </div>
+                </div>
+                <div className="flex items-center gap-4">
+                    <input
+                        type="range"
+                        min="3"
+                        max="600" // 10 minutes
+                        step="1"
+                        value={duration}
+                        onChange={(e) => setDuration(Number(e.target.value))}
+                        disabled={disabled}
+                        className="flex-1 h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-500 disabled:opacity-50"
+                    />
+                    <span className="font-mono text-xl font-bold bg-slate-800 px-3 py-1 rounded w-24 text-center text-sm flex items-center justify-center">
+                        {formatDurationLabel(duration)}
+                    </span>
+                </div>
+            </div>
+        </div>
+    );
+};
