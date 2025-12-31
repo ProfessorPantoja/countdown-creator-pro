@@ -43,12 +43,13 @@ export const translations = {
         engine: "Motor de Renderização",
         cancelRendering: "Cancelar Renderização",
         renderSuccess: "Sucesso! Seu vídeo foi baixado.",
+        renderSuccessDescription: "Seu vídeo de {duration}s foi gerado e o download iniciou automaticamente.",
         avgFps: "FPS Médio",
         totalTime: "Tempo Total",
         downloadAgain: "Baixar Novamente",
         createNew: "Criar Novo",
         renderingOverlay: "Renderizando Vídeo...",
-        proButton: "SEJA PRO"
+        proButton: "QUERO SER PRO"
     },
     en: {
         appTitle: "Settings",
@@ -93,11 +94,12 @@ export const translations = {
         engine: "Rendering Engine",
         cancelRendering: "Cancel Rendering",
         renderSuccess: "Success! Video downloaded.",
+        renderSuccessDescription: "Your {duration}s video has been generated and download started automatically.",
         avgFps: "Avg FPS",
         totalTime: "Total Time",
         downloadAgain: "Download Again",
         createNew: "Create New",
         renderingOverlay: "Rendering Video...",
-        proButton: "GO PRO"
+        proButton: "BECOME PRO"
     }
 };
