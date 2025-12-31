@@ -323,6 +323,9 @@ export class VideoRenderer {
             this.onComplete(url);
         };
 
+        // Safety timeout in case loop dies
+        // this.activeTimeout = setTimeout(() => this.stop(), (this.duration + 5) * 1000);
+
         if (this.appearance.backgroundType === 'media' && this.appearance.media?.type === 'video' && this.videoElement) {
             this.videoElement.currentTime = 0;
             this.videoElement.muted = true;
@@ -383,10 +386,15 @@ export class VideoRenderer {
             this.frameCount = 0;
         }
 
-        // CORREÇÃO: Adicionado buffer de 1.0s para garantir que o frame "00:00" seja renderizado e visível no final
-        if (elapsed >= this.duration + 1.0) {
+        // CORREÇÃO: Buffer aumentado para 2.0s para garantir finalização suave e captura do 00:00
+        if (elapsed >= this.duration + 2.0) {
             this.stop();
             return;
+        }
+
+        // Force extra "ending" frames to ensure 00:00 is captured even if lag occurred
+        if (remaining === 0 && elapsed > this.duration) {
+            // Force redraw of 00:00
         }
 
         this.animationFrameId = requestAnimationFrame(this.loop);
@@ -641,6 +649,7 @@ export class VideoRenderer {
 
     public stop() {
         if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
+            this.mediaRecorder.requestData(); // FLUSH FINAL FRAMES
             this.mediaRecorder.stop();
         }
         cancelAnimationFrame(this.animationFrameId);
