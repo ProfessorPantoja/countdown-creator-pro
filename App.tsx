@@ -10,6 +10,7 @@ import { Video, Loader2, StopCircle, Settings, X, Activity, Cpu, CheckCircle, Fi
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 
 import { LandingPage } from './components/LandingPage';
+import { FeedbackSection } from './components/FeedbackSection';
 import { ProModal } from './components/ProModal';
 import { Trophy } from 'lucide-react';
 
@@ -324,6 +325,7 @@ const AppContent: React.FC = () => {
 
       {/* SEO Landing Page Content (Below the fold) */}
       <LandingPage />
+      <FeedbackSection />
     </div>
   );
 };
