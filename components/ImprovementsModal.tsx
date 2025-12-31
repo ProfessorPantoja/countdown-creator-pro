@@ -1,5 +1,6 @@
 import React from 'react';
 import { X, CheckCircle } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface ModalProps {
   isOpen: boolean;
@@ -7,6 +8,7 @@ interface ModalProps {
 }
 
 export const ImprovementsModal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
+  const { t } = useLanguage();
   if (!isOpen) return null;
 
   const suggestions = [
@@ -22,15 +24,13 @@ export const ImprovementsModal: React.FC<ModalProps> = ({ isOpen, onClose }) => 
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
       <div className="bg-slate-900 border border-slate-700 rounded-xl shadow-2xl max-w-lg w-full overflow-hidden animate-in fade-in zoom-in duration-200">
         <div className="p-4 border-b border-slate-700 flex justify-between items-center bg-slate-950">
-          <h2 className="text-lg font-bold text-white">Roadmap do Projeto 🚀</h2>
+          <h2 className="text-lg font-bold text-white">{t.improvementsTitle}</h2>
           <button onClick={onClose} className="text-slate-400 hover:text-white transition-colors">
             <X className="w-5 h-5" />
           </button>
         </div>
         <div className="p-6 space-y-4">
-          <p className="text-slate-300 text-sm mb-4">
-            Confira o arquivo <code>SUGESTOES.md</code> na raiz do projeto para detalhes técnicos.
-          </p>
+          <p className="text-slate-300 text-sm mb-4" dangerouslySetInnerHTML={{ __html: t.checkRoadmap }} />
           <ul className="space-y-3">
             {suggestions.map((item, idx) => (
               <li key={idx} className="flex gap-3 items-start text-sm text-slate-300">
@@ -45,7 +45,7 @@ export const ImprovementsModal: React.FC<ModalProps> = ({ isOpen, onClose }) => 
             onClick={onClose}
             className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition-colors"
           >
-            Entendido
+            {t.improvementsFooter}
           </button>
         </div>
       </div>

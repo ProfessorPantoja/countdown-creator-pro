@@ -2,6 +2,7 @@ import React from 'react';
 import { Layers, Video, Image as ImageIcon, Maximize, Zap } from 'lucide-react';
 import { AppearanceState, BackgroundType } from '../../types';
 import { SOLID_COLORS, GRADIENTS, RATIO_VALUES } from '../../constants';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 interface BackgroundSectionProps {
     appearance: AppearanceState;
@@ -9,6 +10,7 @@ interface BackgroundSectionProps {
 }
 
 export const BackgroundSection: React.FC<BackgroundSectionProps> = ({ appearance, setAppearance }) => {
+    const { t } = useLanguage();
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -83,7 +85,7 @@ export const BackgroundSection: React.FC<BackgroundSectionProps> = ({ appearance
     return (
         <div className="space-y-3 p-4 bg-slate-800/50 rounded-lg border border-slate-700">
             <label className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
-                <Layers className="w-4 h-4" /> Fundo
+                <Layers className="w-4 h-4" /> {t.background}
             </label>
 
             <div className="flex bg-slate-800 p-1 rounded-lg mb-3">
@@ -92,11 +94,11 @@ export const BackgroundSection: React.FC<BackgroundSectionProps> = ({ appearance
                         key={type}
                         onClick={() => setAppearance(prev => ({ ...prev, backgroundType: type }))}
                         className={`flex-1 py-1 text-xs font-medium rounded transition-all ${appearance.backgroundType === type
-                                ? 'bg-slate-600 text-white shadow'
-                                : 'text-slate-400 hover:text-slate-200'
+                            ? 'bg-slate-600 text-white shadow'
+                            : 'text-slate-400 hover:text-slate-200'
                             }`}
                     >
-                        {type === 'solid' ? 'Cor' : type === 'gradient' ? 'Gradiente' : 'Mídia'}
+                        {t.bgTypes[type]}
                     </button>
                 ))}
             </div>
@@ -141,8 +143,8 @@ export const BackgroundSection: React.FC<BackgroundSectionProps> = ({ appearance
                 <div className="space-y-3">
                     <label className="flex items-center justify-center gap-2 w-full p-3 bg-slate-800 hover:bg-slate-700 border border-slate-600 border-dashed rounded cursor-pointer transition-colors group">
                         <div className="flex flex-col items-center">
-                            <span className="text-xs text-slate-400 group-hover:text-indigo-300">Carregar Imagem ou Vídeo</span>
-                            <span className="text-[10px] text-slate-500">(Arraste no preview para mover)</span>
+                            <span className="text-xs text-slate-400 group-hover:text-indigo-300">{t.uploadMedia}</span>
+                            <span className="text-[10px] text-slate-500">{t.dragHint}</span>
                         </div>
                         <input type="file" className="hidden" accept="image/*,video/*" onChange={handleFileChange} />
                     </label>
@@ -161,7 +163,7 @@ export const BackgroundSection: React.FC<BackgroundSectionProps> = ({ appearance
                                     title="Preenche a tela toda com a mídia"
                                 >
                                     <Maximize className="w-3 h-3" />
-                                    Cover
+                                    {t.coverButton}
                                 </button>
                             </div>
 
@@ -176,10 +178,10 @@ export const BackgroundSection: React.FC<BackgroundSectionProps> = ({ appearance
                                     />
                                     <div className="flex flex-col">
                                         <span className="text-xs font-bold text-indigo-300 flex items-center gap-1">
-                                            <Zap className="w-3 h-3" /> Ajustar vídeo ao Timer
+                                            <Zap className="w-3 h-3" /> {t.syncVideo}
                                         </span>
                                         <span className="text-[10px] text-indigo-200/60 leading-tight">
-                                            Acelera ou desacelera o vídeo para terminar exatamente com o contador.
+                                            {t.syncVideoDesc}
                                         </span>
                                     </div>
                                 </label>
@@ -187,7 +189,7 @@ export const BackgroundSection: React.FC<BackgroundSectionProps> = ({ appearance
 
                             <div className="space-y-1">
                                 <div className="flex justify-between text-xs text-slate-400">
-                                    <span>Zoom / Escala (Use roda do mouse)</span>
+                                    <span>{t.zoom}</span>
                                     <span>{Math.round(appearance.mediaScale * 100)}%</span>
                                 </div>
                                 <input

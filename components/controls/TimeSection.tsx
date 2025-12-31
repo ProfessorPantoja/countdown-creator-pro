@@ -1,5 +1,6 @@
 import React from 'react';
 import { Clock } from 'lucide-react';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 interface TimeSectionProps {
     duration: number;
@@ -8,6 +9,7 @@ interface TimeSectionProps {
 }
 
 export const TimeSection: React.FC<TimeSectionProps> = ({ duration, setDuration, disabled = false }) => {
+    const { t } = useLanguage();
 
     const formatDurationLabel = (seconds: number) => {
         if (seconds < 60) return `${seconds}s`;
@@ -19,11 +21,11 @@ export const TimeSection: React.FC<TimeSectionProps> = ({ duration, setDuration,
     return (
         <div className="space-y-3 p-4 bg-slate-800/50 rounded-lg border border-slate-700">
             <label className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
-                <Clock className="w-4 h-4" /> Tempo (Duração)
+                <Clock className="w-4 h-4" /> {t.time}
             </label>
             <div className="space-y-2">
                 <div className="flex justify-between text-xs text-slate-400">
-                    <span>Ajustar (Segundos)</span>
+                    <span>{t.adjustSeconds}</span>
                     <div className="flex items-center gap-1">
                         <input
                             type="number"

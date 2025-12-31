@@ -2,6 +2,7 @@ import React from 'react';
 import { Type, Sparkles, Type as TypeIcon } from 'lucide-react';
 import { AppearanceState, AnimationType } from '../../types';
 import { FONT_FAMILIES, ANIMATION_TYPES, MIN_FONT_SIZE, MAX_FONT_SIZE } from '../../constants';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 interface TypographySectionProps {
     appearance: AppearanceState;
@@ -9,16 +10,18 @@ interface TypographySectionProps {
 }
 
 export const TypographySection: React.FC<TypographySectionProps> = ({ appearance, setAppearance }) => {
+    const { t } = useLanguage();
+
     return (
         <div className="space-y-3 p-4 bg-slate-800/50 rounded-lg border border-slate-700">
             <label className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
-                <Type className="w-4 h-4" /> Tipografia e Posição
+                <Type className="w-4 h-4" /> {t.typography}
             </label>
             <div className="space-y-4">
                 {/* Font Family Selection */}
                 <div className="space-y-1">
                     <div className="text-[10px] text-slate-400 uppercase font-bold flex items-center gap-1">
-                        <TypeIcon className="w-3 h-3" /> Fonte (Google Fonts)
+                        <TypeIcon className="w-3 h-3" /> {t.font}
                     </div>
                     <select
                         value={appearance.fontFamily || 'Inter'}
@@ -37,7 +40,7 @@ export const TypographySection: React.FC<TypographySectionProps> = ({ appearance
                 {/* Animation Selection */}
                 <div className="space-y-1">
                     <div className="text-[10px] text-slate-400 uppercase font-bold flex items-center gap-1">
-                        <Sparkles className="w-3 h-3" /> Animação
+                        <Sparkles className="w-3 h-3" /> {t.animation}
                     </div>
                     <select
                         value={appearance.animationType || 'none'}
@@ -55,7 +58,7 @@ export const TypographySection: React.FC<TypographySectionProps> = ({ appearance
                 {/* Font Size */}
                 <div className="space-y-1 border-t border-slate-700 pt-3">
                     <div className="flex justify-between text-xs text-slate-400">
-                        <span>Tamanho</span>
+                        <span>{t.size}</span>
                         <div className="flex items-center gap-1">
                             <input
                                 type="number"
@@ -83,7 +86,7 @@ export const TypographySection: React.FC<TypographySectionProps> = ({ appearance
                         onChange={(e) => setAppearance((prev) => ({ ...prev, fontColor: e.target.value }))}
                         className="w-8 h-8 rounded border-none cursor-pointer bg-transparent"
                     />
-                    <span className="text-sm text-slate-300">Cor do Texto</span>
+                    <span className="text-sm text-slate-300">{t.textColor}</span>
                 </div>
 
                 <label className="flex items-center gap-2 cursor-pointer mt-1">
@@ -93,7 +96,7 @@ export const TypographySection: React.FC<TypographySectionProps> = ({ appearance
                         onChange={(e) => setAppearance((prev) => ({ ...prev, fontShadow: e.target.checked }))}
                         className="rounded bg-slate-700 border-slate-500 text-indigo-500 focus:ring-indigo-500"
                     />
-                    <span className="text-sm text-slate-300">Sombra (Contraste)</span>
+                    <span className="text-sm text-slate-300">{t.shadow}</span>
                 </label>
             </div>
         </div>

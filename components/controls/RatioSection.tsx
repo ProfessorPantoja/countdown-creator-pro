@@ -2,6 +2,7 @@ import React from 'react';
 import { Monitor, Move } from 'lucide-react';
 import { AppearanceState, AspectRatio } from '../../types';
 import { RATIO_LABELS, RATIO_VALUES } from '../../constants';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 interface RatioSectionProps {
     appearance: AppearanceState;
@@ -9,6 +10,7 @@ interface RatioSectionProps {
 }
 
 export const RatioSection: React.FC<RatioSectionProps> = ({ appearance, setAppearance }) => {
+    const { t } = useLanguage();
 
     const setRatioToMedia = () => {
         if (appearance.media?.aspectRatio) {
@@ -23,7 +25,7 @@ export const RatioSection: React.FC<RatioSectionProps> = ({ appearance, setAppea
     return (
         <div className="space-y-3 p-4 bg-slate-800/50 rounded-lg border border-slate-700">
             <label className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
-                <Monitor className="w-4 h-4" /> Proporção do Canvas
+                <Monitor className="w-4 h-4" /> {t.ratio}
             </label>
             <select
                 value={appearance.aspectRatio}
@@ -43,7 +45,7 @@ export const RatioSection: React.FC<RatioSectionProps> = ({ appearance, setAppea
                     className="w-full py-2 px-3 bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-300 text-xs rounded border border-indigo-500/30 transition-colors flex items-center justify-center gap-2"
                 >
                     <Move className="w-3 h-3" />
-                    Usar proporção da Mídia Original
+                    {t.customRatio}
                 </button>
             )}
         </div>

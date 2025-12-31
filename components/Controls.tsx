@@ -5,6 +5,7 @@ import { RatioSection } from './controls/RatioSection';
 import { BackgroundSection } from './controls/BackgroundSection';
 import { TypographySection } from './controls/TypographySection';
 import { TimeSection } from './controls/TimeSection';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface ControlsProps {
   duration: number;
@@ -37,6 +38,7 @@ export const Controls: React.FC<ControlsProps> = ({
   bitrate = 2500000,
   setBitrate
 }) => {
+  const { t } = useLanguage();
 
   const bitrateOptions = [
     { label: '1M', value: 1000000 },
@@ -58,7 +60,7 @@ export const Controls: React.FC<ControlsProps> = ({
       <div className="p-4 border-b border-slate-700 bg-slate-950 sticky top-0 z-10 flex justify-between items-center shadow-md">
         <h1 className="text-xl font-bold flex items-center gap-2 text-indigo-400">
           <Settings className="w-5 h-5" />
-          Configuração
+          {t.appTitle}
         </h1>
         {onClose && (
           <button
@@ -86,7 +88,7 @@ export const Controls: React.FC<ControlsProps> = ({
           {setBitrate && (
             <div className="bg-slate-900 p-2 rounded border border-slate-800">
               <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1 mb-1">
-                <Signal className="w-3 h-3" /> Bitrate
+                <Signal className="w-3 h-3" /> {t.bitrate}
               </label>
               <select
                 value={bitrate}
@@ -99,7 +101,7 @@ export const Controls: React.FC<ControlsProps> = ({
           )}
           <div className="bg-slate-900 p-2 rounded border border-slate-800">
             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1 mb-1">
-              <Gauge className="w-3 h-3" /> Resolução
+              <Gauge className="w-3 h-3" /> {t.resolution}
             </label>
             <select
               value={appearance.resolution || 720}
@@ -116,14 +118,14 @@ export const Controls: React.FC<ControlsProps> = ({
           onClick={timerControls.toggle}
           disabled={isRecording}
           className={`col-span-1 py-3 rounded-lg font-bold flex items-center justify-center gap-2 transition-all ${timerControls.isActive
-              ? 'bg-amber-600 hover:bg-amber-700 text-white'
-              : 'bg-green-600 hover:bg-green-700 text-white'
+            ? 'bg-amber-600 hover:bg-amber-700 text-white'
+            : 'bg-green-600 hover:bg-green-700 text-white'
             } ${isRecording ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
           {timerControls.isActive ? (
-            <><Pause className="w-5 h-5" /> Pausar</>
+            <><Pause className="w-5 h-5" /> {t.pause}</>
           ) : (
-            <><Play className="w-5 h-5" /> Iniciar</>
+            <><Play className="w-5 h-5" /> {t.play}</>
           )}
         </button>
 
@@ -132,7 +134,7 @@ export const Controls: React.FC<ControlsProps> = ({
           disabled={isRecording}
           className="col-span-1 py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg font-bold flex items-center justify-center gap-2 transition-all disabled:opacity-50"
         >
-          <RotateCcw className="w-5 h-5" /> Reset
+          <RotateCcw className="w-5 h-5" /> {t.reset}
         </button>
 
         {/* RECORD BUTTON */}
@@ -142,7 +144,7 @@ export const Controls: React.FC<ControlsProps> = ({
           className="col-span-2 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-bold flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-2 shadow-lg shadow-red-900/20"
         >
           <Download className="w-5 h-5" />
-          {isRecording ? 'Renderizando...' : 'Gravar Vídeo'}
+          {isRecording ? t.rendering : t.record}
         </button>
 
         <button
@@ -150,7 +152,7 @@ export const Controls: React.FC<ControlsProps> = ({
           className="col-span-2 mt-1 text-xs text-slate-500 hover:text-indigo-400 flex items-center justify-center gap-1 py-1"
         >
           <Info className="w-3 h-3" />
-          Sugestões de Melhoria
+          {t.suggestions}
         </button>
       </div>
     </div>

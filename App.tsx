@@ -7,23 +7,33 @@ import { AppearanceState } from './types';
 import { DEFAULT_FONT_SIZE, RATIO_VALUES } from './constants';
 import { VideoRenderer } from './utils/VideoRenderer'; // Novo Motor
 import { Video, Loader2, StopCircle, Settings, X, Activity, Cpu, CheckCircle, FileVideo, Clock, BarChart } from 'lucide-react';
+import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 
-const App: React.FC = () => {
+import { LandingPage } from './components/LandingPage';
+import { ProModal } from './components/ProModal';
+import { Trophy } from 'lucide-react';
+
+
+const AppContent: React.FC = () => {
+  // ... (rest of the component logic)
+
   // Configuração Inicial: 7 segundos
   const [duration, setDuration] = useState<number>(7);
   const [showImprovements, setShowImprovements] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  
+  const [isPro, setIsPro] = useState(false);
+  const [showProModal, setShowProModal] = useState(false);
+
   // Novo Estado: Bitrate (Padrão 2.5 Mbps para boa qualidade em 720p)
   const [bitrate, setBitrate] = useState<number>(2500000);
 
   // Estados para Debug de Performance
   const [renderStats, setRenderStats] = useState({ fps: 0, progress: 0, resolution: 0 });
-  
+
   // Estado para Relatório Final
   const [lastDownloadUrl, setLastDownloadUrl] = useState<string | null>(null);
-  const [lastRenderReport, setLastRenderReport] = useState<{avgFps: number, totalTime: number} | null>(null);
+  const [lastRenderReport, setLastRenderReport] = useState<{ avgFps: number, totalTime: number } | null>(null);
   const fpsHistoryRef = useRef<number[]>([]);
   const renderStartTimeRef = useRef<number>(0);
 
@@ -46,67 +56,69 @@ const App: React.FC = () => {
   });
 
   const { timeLeft, isActive, reset, toggle, setTimeLeft } = useTimer(duration);
-  
+  const { t } = useLanguage();
+
   const videoElementRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  
+
   // Instância do Motor
   const rendererRef = useRef<VideoRenderer | null>(null);
 
   const startRecording = () => {
     if (!canvasRef.current) return;
-    
+
     setIsMobileMenuOpen(false);
     reset(); // Reseta timer visual
     setIsRecording(true);
     setLastDownloadUrl(null);
     setLastRenderReport(null);
     setRenderStats({ fps: 0, progress: duration, resolution: appearance.resolution || 720 });
-    
+
     fpsHistoryRef.current = [];
     renderStartTimeRef.current = Date.now();
 
     // Instancia o motor independente
     rendererRef.current = new VideoRenderer(
-        canvasRef.current,
-        videoElementRef.current,
-        appearance,
-        duration,
-        (remainingTime, stats) => {
-            // Callback de progresso
-            // Atualiza apenas stats, não o timer principal (para economizar React Cycles)
-            setRenderStats(prev => ({ 
-                ...prev, 
-                fps: stats.fps, 
-                progress: remainingTime,
-                resolution: stats.resolution
-            }));
-            
-            // Coleta dados para relatório final
-            if (stats.fps > 0) fpsHistoryRef.current.push(stats.fps);
-        },
-        (url) => {
-            // Callback de conclusão
-            setIsRecording(false);
-            setLastDownloadUrl(url);
-            
-            const totalTime = (Date.now() - renderStartTimeRef.current) / 1000;
-            const avgFps = fpsHistoryRef.current.length > 0 
-                ? Math.round(fpsHistoryRef.current.reduce((a, b) => a + b, 0) / fpsHistoryRef.current.length) 
-                : 30;
+      canvasRef.current,
+      videoElementRef.current,
+      appearance,
+      duration,
+      isPro,
+      (remainingTime, stats) => {
+        // Callback de progresso
+        // Atualiza apenas stats, não o timer principal (para economizar React Cycles)
+        setRenderStats(prev => ({
+          ...prev,
+          fps: stats.fps,
+          progress: remainingTime,
+          resolution: stats.resolution
+        }));
 
-            setLastRenderReport({ avgFps, totalTime });
-            
-            // Auto download
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `contador-${appearance.resolution}p-${duration}s.mp4`;
-            a.click();
-            
-            // Cleanup
-            rendererRef.current = null;
-            reset();
-        }
+        // Coleta dados para relatório final
+        if (stats.fps > 0) fpsHistoryRef.current.push(stats.fps);
+      },
+      (url) => {
+        // Callback de conclusão
+        setIsRecording(false);
+        setLastDownloadUrl(url);
+
+        const totalTime = (Date.now() - renderStartTimeRef.current) / 1000;
+        const avgFps = fpsHistoryRef.current.length > 0
+          ? Math.round(fpsHistoryRef.current.reduce((a, b) => a + b, 0) / fpsHistoryRef.current.length)
+          : 30;
+
+        setLastRenderReport({ avgFps, totalTime });
+
+        // Auto download
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `contador-${appearance.resolution}p-${duration}s.mp4`;
+        a.click();
+
+        // Cleanup
+        rendererRef.current = null;
+        reset();
+      }
     );
 
     // Inicia (Motor gerencia o loop, React fica passivo)
@@ -115,9 +127,9 @@ const App: React.FC = () => {
 
   const stopRecording = () => {
     if (rendererRef.current) {
-        rendererRef.current.stop();
-        setIsRecording(false);
-        reset();
+      rendererRef.current.stop();
+      setIsRecording(false);
+      reset();
     }
   };
 
@@ -127,197 +139,200 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col md:flex-row h-screen w-screen bg-black overflow-hidden font-sans relative">
-      <canvas ref={canvasRef} className="fixed top-0 left-0 opacity-0 pointer-events-none -z-50" />
+    <div className="w-full min-h-screen bg-slate-950 overflow-x-hidden relative">
+      {/* App Section - Full Screen */}
+      <div className="flex flex-col md:flex-row h-screen w-full relative">
+        <canvas ref={canvasRef} className="fixed top-0 left-0 opacity-0 pointer-events-none -z-50" />
 
-      {/* Desktop Sidebar */}
-      <div className="hidden md:flex w-96 flex-col border-r border-slate-700 shadow-2xl z-30 bg-slate-900 h-full relative">
-        <Controls 
-          duration={duration} 
-          setDuration={setDuration}
-          appearance={appearance}
-          setAppearance={setAppearance}
-          timerControls={{ isActive, reset, toggle: handleToggleTimer }}
-          onOpenImprovements={() => setShowImprovements(true)}
-          onStartRecording={startRecording}
-          isRecording={isRecording}
-          bitrate={bitrate}
-          setBitrate={setBitrate}
-        />
-      </div>
-
-      {/* Mobile Settings Modal */}
-      {isMobileMenuOpen && (
-        <div className="md:hidden fixed inset-0 z-50 bg-slate-900 flex flex-col animate-in slide-in-from-bottom duration-200">
-           <Controls 
-             duration={duration} 
-             setDuration={setDuration}
-             appearance={appearance}
-             setAppearance={setAppearance}
-             timerControls={{ isActive, reset, toggle: handleToggleTimer }}
-             onOpenImprovements={() => setShowImprovements(true)}
-             onStartRecording={startRecording}
-             isRecording={isRecording}
-             onClose={() => setIsMobileMenuOpen(false)}
-             bitrate={bitrate}
-             setBitrate={setBitrate}
-           />
-        </div>
-      )}
-
-      {/* Preview Section */}
-      <div className="flex-1 relative h-full w-full overflow-hidden flex items-center justify-center bg-slate-950 p-0 md:p-10">
-        
-        {/* CORREÇÃO: Preview mantido montado para garantir que o elemento <video> não seja destruído/pausado */}
-        {/* Usamos a fonte da Appearance para o Preview também */}
-        <div 
-           className={`w-full h-full flex items-center justify-center transition-opacity duration-500 ${isRecording ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
-           style={{ fontFamily: appearance.fontFamily }}
+        {/* PRO BUTTON */}
+        <button
+          onClick={() => setShowProModal(true)}
+          className="absolute top-4 right-16 md:right-8 z-30 flex items-center gap-2 bg-gradient-to-r from-yellow-400 to-yellow-600 text-white px-4 py-2 rounded-full shadow-lg font-black tracking-wider text-xs hover:scale-105 transition-transform active:scale-95 border border-yellow-300/30"
         >
-            <Preview 
-                appearance={appearance}
-                setAppearance={setAppearance}
-                timeLeft={timeLeft}
-                videoRef={videoElementRef}
-            />
+          <Trophy className="w-4 h-4 fill-white" />
+          {t.proButton || "PRO"}
+        </button>
+
+
+        {/* Mobile Menu Button - Só aparece no Mobile */}
+        <div className="md:hidden absolute top-4 left-4 z-50">
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="p-2 bg-slate-800 rounded-lg text-white shadow-lg border border-slate-700"
+          >
+            {isMobileMenuOpen ? <X /> : <Settings />}
+          </button>
         </div>
 
-        {/* Botão flutuante mobile */}
-        {!isRecording && !isMobileMenuOpen && (
-           <button 
-             onClick={() => setIsMobileMenuOpen(true)}
-             className="md:hidden absolute top-4 right-4 z-40 p-3 bg-slate-800/80 backdrop-blur-md text-white rounded-full shadow-lg border border-slate-600 active:scale-90 transition-all hover:bg-slate-700"
-             aria-label="Configurações"
-           >
-             <Settings className="w-6 h-6" />
-           </button>
-        )}
+        {/* Controls Sidebar (Desktop: Static | Mobile: Absolute/Drawer) */}
+        <div className={`
+        fixed inset-y-0 left-0 z-40 w-full md:w-[400px] bg-slate-900 shadow-2xl transform transition-transform duration-300 md:relative md:transform-none md:shadow-xl border-r border-slate-800
+        ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
+      `}>
+          <Controls
+            duration={duration}
+            setDuration={setDuration}
+            appearance={appearance}
+            setAppearance={setAppearance}
+            timerControls={{ isActive, toggle, reset }}
+            onOpenImprovements={() => setShowImprovements(true)}
+            onStartRecording={startRecording}
+            isRecording={isRecording}
+            onClose={() => setIsMobileMenuOpen(false)}
+            bitrate={bitrate}
+            setBitrate={setBitrate}
+          />
+        </div>
+
+        {/* Main Preview Area */}
+        <div className="flex-1 relative flex items-center justify-center bg-slate-950 overflow-hidden">
+          {/* Pattern Background de fundo da área de preview (estético) */}
+          <div className="absolute inset-0 opacity-20 pointer-events-none"
+            style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, #475569 1px, transparent 0)', backgroundSize: '40px 40px' }}>
+          </div>
+
+          <div className="relative z-10 w-full h-full max-w-full max-h-full p-4 md:p-8 flex items-center justify-center">
+            <Preview
+              appearance={appearance}
+              setAppearance={setAppearance}
+              timeLeft={timeLeft}
+              videoRef={videoElementRef}
+            />
+          </div>
+
+          {/* --- OVERLAY DE RENDERIZAÇÃO --- */}
+          {isRecording && (
+            <div className="absolute inset-0 z-50 bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-6 animate-in fade-in duration-300">
+              <div className="w-full max-w-md space-y-8">
+
+                <div className="text-center space-y-2">
+                  <div className="relative w-20 h-20 mx-auto">
+                    <div className="absolute inset-0 border-4 border-slate-800 rounded-full"></div>
+                    <div
+                      className="absolute inset-0 border-4 border-indigo-500 rounded-full transition-all duration-300"
+                      style={{
+                        clipPath: `inset(0 0 ${100 - ((renderStats.progress / duration) * 100)}% 0)` // Invertido para encher
+                      }}
+                    ></div>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <Cpu className="w-8 h-8 text-indigo-400 animate-pulse" />
+                    </div>
+                  </div>
+                  <h2 className="text-2xl font-bold text-white tracking-tight">{t.renderingOverlay}</h2>
+                  <div className="text-slate-400 text-sm font-mono bg-slate-900/50 inline-block px-3 py-1 rounded-full border border-slate-800">
+                    {Math.round((renderStats.progress / duration) * 100)}% ({renderStats.fps} FPS)
+                  </div>
+                </div>
+
+                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-4">
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-slate-500 flex items-center gap-2">
+                        <Clock className="w-4 h-4" /> {t.time}
+                      </span>
+                      <span className="text-slate-300 font-medium">
+                        {Math.floor(renderStats.progress)}s <span className="text-slate-600">/ {duration}s</span>
+                      </span>
+                    </div>
+
+                    {/* Progress Bar Visual */}
+                    <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-gradient-to-r from-indigo-600 to-purple-600 transition-all duration-200 ease-out"
+                        style={{ width: `${(renderStats.progress / duration) * 100}%` }}
+                      />
+                    </div>
+
+                    <div className="flex justify-between items-center">
+                      <span className="text-slate-500">{t.resolution}</span>
+                      <span className="text-indigo-300 font-medium">{renderStats.resolution}p</span>
+                    </div>
+
+                    <div className="flex justify-between items-center">
+                      <span className="text-slate-500">{t.engine}</span>
+                      <span className="text-indigo-300 font-medium bg-indigo-900/30 px-2 rounded text-[10px]">WEB-GL BAKED</span>
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  onClick={stopRecording}
+                  className="w-full py-3 bg-slate-800 hover:bg-red-900/50 hover:text-red-200 border border-slate-700 hover:border-red-500/50 rounded-xl font-medium flex items-center justify-center gap-2 transition-all active:scale-95 text-sm"
+                >
+                  <StopCircle className="w-4 h-4" />
+                  {t.cancelRendering}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* --- TELA DE SUCESSO (Pós Render) --- */}
+          {!isRecording && lastRenderReport && (
+            <div className="absolute inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in zoom-in-95 duration-300">
+              <div className="bg-slate-900 border border-slate-700 rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-green-500 to-emerald-500"></div>
+
+                <div className="w-16 h-16 bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle className="w-8 h-8 text-green-500" />
+                </div>
+
+                <h3 className="text-xl font-bold text-white mb-2">{t.renderSuccess}</h3>
+                <p className="text-slate-400 text-sm mb-6">
+                  {t.renderSuccessDescription.replace('{duration}', duration.toString())}
+                </p>
+
+                <div className="grid grid-cols-2 gap-3 text-xs mb-6">
+                  <div className="bg-slate-950 p-3 rounded border border-slate-800">
+                    <div className="text-slate-500 mb-1">{t.avgFps}</div>
+                    <div className="text-lg font-bold text-white">{lastRenderReport.avgFps}</div>
+                  </div>
+                  <div className="bg-slate-950 p-3 rounded border border-slate-800">
+                    <div className="text-slate-500 mb-1">{t.totalTime}</div>
+                    <div className="text-lg font-bold text-white">{lastRenderReport.totalTime.toFixed(1)}s</div>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  {lastDownloadUrl && (
+                    <a
+                      href={lastDownloadUrl}
+                      download={`contador-${appearance.resolution}p-${duration}s.mp4`}
+                      className="flex items-center justify-center gap-2 w-full py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg font-bold transition-colors"
+                    >
+                      <FileVideo className="w-4 h-4" /> {t.downloadAgain}
+                    </a>
+                  )}
+
+                  <button
+                    onClick={() => setLastRenderReport(null)}
+                    className="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-sm transition-colors"
+                  >
+                    {t.createNew}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <ImprovementsModal isOpen={showImprovements} onClose={() => setShowImprovements(false)} />
+        <ProModal isOpen={showProModal} onClose={() => setShowProModal(false)} onUpgrade={() => setIsPro(true)} />
+
+        {/* Video Element Oculto para exportação (usado pelo Renderer) */}
+        <video ref={videoElementRef} className="hidden" />
       </div>
 
-      {/* Recording Overlay com Debug */}
-      {isRecording && (
-        <div className="absolute inset-0 z-[100] bg-black/95 flex flex-col items-center justify-center text-white p-6 text-center backdrop-blur-sm">
-           <div className="bg-slate-900 p-8 rounded-3xl border border-slate-700 flex flex-col items-center gap-6 shadow-2xl max-w-sm w-full animate-in zoom-in duration-300 relative overflow-hidden">
-              
-              {/* Progress Bar Top */}
-              <div className="absolute top-0 left-0 h-1 bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-300" style={{ width: `${((duration - renderStats.progress) / duration) * 100}%` }}></div>
-
-              <div className="relative">
-                <div className="absolute -inset-4 bg-indigo-500/10 rounded-full animate-pulse"></div>
-                <Loader2 className="w-16 h-16 text-indigo-500 animate-spin" />
-              </div>
-              
-              <div className="space-y-1">
-                <h2 className="text-xl font-bold tracking-tight text-white">Gerando Vídeo...</h2>
-                <p className="text-slate-400 text-xs">Mantenha a aba aberta</p>
-              </div>
-
-              <div className="text-5xl font-mono font-black text-white bg-black/50 px-6 py-4 rounded-xl border border-white/10 w-full tracking-wider shadow-inner">
-                 {Math.ceil(renderStats.progress)}s
-              </div>
-
-              {/* LIVE REPORT */}
-              <div className="w-full bg-slate-950/50 rounded-lg p-4 border border-slate-800 text-xs font-mono text-left space-y-3">
-                 <div className="flex items-center gap-2 text-indigo-400 border-b border-slate-800 pb-2 mb-1">
-                    <Activity className="w-4 h-4" />
-                    <span className="font-bold uppercase tracking-widest">Monitor de Performance</span>
-                 </div>
-                 
-                 <div className="space-y-2">
-                    <div className="flex justify-between items-center">
-                        <span className="text-slate-500">FPS Atual</span>
-                        <div className="flex items-center gap-2">
-                            <div className={`w-20 h-1.5 rounded-full bg-slate-800 overflow-hidden`}>
-                                <div 
-                                  className={`h-full transition-all duration-300 ${renderStats.fps < 20 ? 'bg-red-500' : 'bg-green-500'}`} 
-                                  style={{ width: `${(renderStats.fps / 30) * 100}%` }}
-                                />
-                            </div>
-                            <span className={`font-bold w-8 text-right ${renderStats.fps < 25 ? 'text-yellow-500' : 'text-green-500'}`}>
-                                {renderStats.fps}
-                            </span>
-                        </div>
-                    </div>
-                    
-                    <div className="flex justify-between items-center">
-                        <span className="text-slate-500">Resolução</span>
-                        <span className="text-indigo-300 font-medium">{renderStats.resolution}p</span>
-                    </div>
-
-                    <div className="flex justify-between items-center">
-                        <span className="text-slate-500">Motor</span>
-                        <span className="text-indigo-300 font-medium bg-indigo-900/30 px-2 rounded text-[10px]">WEB-GL BAKED</span>
-                    </div>
-                 </div>
-              </div>
-
-              <button 
-                onClick={stopRecording}
-                className="w-full py-3 bg-slate-800 hover:bg-red-900/50 hover:text-red-200 border border-slate-700 hover:border-red-500/50 rounded-xl font-medium flex items-center justify-center gap-2 transition-all active:scale-95 text-sm"
-              >
-                <StopCircle className="w-4 h-4" />
-                Cancelar Renderização
-              </button>
-           </div>
-        </div>
-      )}
-
-      {/* Download Success / Summary Modal */}
-      {lastDownloadUrl && !isRecording && (
-         <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-sm animate-in fade-in duration-300">
-             <div className="bg-slate-900 border border-green-500/30 p-6 rounded-2xl shadow-2xl max-w-sm w-full relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-1 bg-green-500"></div>
-                
-                <div className="flex justify-between items-start mb-6">
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 bg-green-500/10 rounded-lg">
-                             <CheckCircle className="text-green-400 w-6 h-6" />
-                        </div>
-                        <div>
-                            <h3 className="text-lg font-bold text-white">Renderização Concluída!</h3>
-                            <p className="text-xs text-slate-400">O download iniciou automaticamente.</p>
-                        </div>
-                    </div>
-                    <button onClick={() => setLastDownloadUrl(null)} className="text-slate-500 hover:text-white">
-                        <X className="w-5 h-5" />
-                    </button>
-                </div>
-
-                {lastRenderReport && (
-                    <div className="grid grid-cols-2 gap-3 mb-6">
-                        <div className="bg-slate-950 p-3 rounded-lg border border-slate-800 flex flex-col items-center justify-center">
-                             <span className="text-slate-500 text-[10px] uppercase font-bold mb-1">Média FPS</span>
-                             <span className="text-2xl font-mono text-green-400 font-bold">{lastRenderReport.avgFps}</span>
-                        </div>
-                        <div className="bg-slate-950 p-3 rounded-lg border border-slate-800 flex flex-col items-center justify-center">
-                             <span className="text-slate-500 text-[10px] uppercase font-bold mb-1">Tempo Total</span>
-                             <span className="text-2xl font-mono text-indigo-400 font-bold">{lastRenderReport.totalTime.toFixed(1)}s</span>
-                        </div>
-                    </div>
-                )}
-
-                <div className="flex flex-col gap-2">
-                    <a 
-                        href={lastDownloadUrl} 
-                        download={`contador-${appearance.resolution}p.mp4`} 
-                        className="w-full py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-green-900/20"
-                    >
-                        <FileVideo className="w-4 h-4" />
-                        Baixar Novamente
-                    </a>
-                    <button 
-                        onClick={() => setLastDownloadUrl(null)}
-                        className="w-full py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-medium transition-all"
-                    >
-                        Criar Novo Vídeo
-                    </button>
-                </div>
-             </div>
-         </div>
-      )}
-
-      <ImprovementsModal isOpen={showImprovements} onClose={() => setShowImprovements(false)} />
+      {/* SEO Landing Page Content (Below the fold) */}
+      <LandingPage />
     </div>
+  );
+};
+
+const App: React.FC = () => {
+  return (
+    <LanguageProvider>
+      <AppContent />
+    </LanguageProvider>
   );
 };
 
