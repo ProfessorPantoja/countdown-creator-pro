@@ -54,8 +54,8 @@ export class VideoRenderer {
     // --- STATS & TIMING ---
     private frameCount: number = 0;
     private lastFpsTime: number = 0;
-    private readonly FPS = 30;
-    private readonly INTERVAL = 1000 / 30;
+    private readonly FPS = 65;
+    private readonly INTERVAL = 1000 / 65;
     private lastFrameTime: number = 0;
 
     private layout: PreCalculatedLayout | null = null;

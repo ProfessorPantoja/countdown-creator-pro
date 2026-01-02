@@ -59,6 +59,27 @@ export const TimeSection: React.FC<TimeSectionProps> = ({ duration, setDuration,
                         {formatDurationLabel(duration)}
                     </span>
                 </div>
+                {/* Preset Buttons */}
+                <div className="flex gap-2 mt-2">
+                    {[
+                        { label: '15s', value: 15 },
+                        { label: '30s', value: 30 },
+                        { label: '1min', value: 60 },
+                        { label: '3min', value: 180 },
+                    ].map((preset) => (
+                        <button
+                            key={preset.value}
+                            onClick={() => setDuration(preset.value)}
+                            disabled={disabled}
+                            className={`flex-1 py-1.5 text-xs font-medium rounded border transition-colors ${duration === preset.value
+                                    ? 'bg-indigo-600 border-indigo-500 text-white'
+                                    : 'bg-slate-700 border-slate-600 text-slate-300 hover:bg-slate-600'
+                                } disabled:opacity-50`}
+                        >
+                            {preset.label}
+                        </button>
+                    ))}
+                </div>
             </div>
         </div>
     );
