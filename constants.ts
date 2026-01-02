@@ -43,6 +43,9 @@ export const ANIMATION_TYPES: Record<AnimationType, string> = {
   'pop': 'Pop / Explosão'
 };
 
+export const WATERMARK_TEXT = "321-go.vercel.app";
+
+
 export const DEFAULT_FONT_SIZE = 200
 export const MIN_FONT_SIZE = 20;
 export const MAX_FONT_SIZE = 1500;

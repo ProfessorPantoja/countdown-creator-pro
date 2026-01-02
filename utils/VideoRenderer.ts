@@ -1,5 +1,7 @@
 import { AppearanceState } from '../types';
-import { RATIO_VALUES } from '../constants';
+import { RATIO_VALUES, WATERMARK_TEXT } from '../constants';
+import { formatTime } from '../utils/time';
+
 
 interface PreCalculatedLayout {
     bg: {
@@ -96,13 +98,11 @@ export class VideoRenderer {
     }
 
     // --- HELPER: Formatação de Tempo ---
-    private formatTime(seconds: number): string {
-        const mins = Math.floor(seconds / 60);
-        const secs = seconds % 60;
-        return `${mins}:${secs.toString().padStart(2, '0')}`;
-    }
+    // Moved to utils/time.ts
+    // private formatTime(seconds: number): string { ... }
 
     // --- FASE 1: PREPARAÇÃO DO LAYOUT E SPRITES ---
+
 
     private calculateBackgroundLayout() {
         const width = this.canvas.width;
@@ -249,7 +249,8 @@ export class VideoRenderer {
 
     // Calcula onde cada dígito vai ficar na tela baseada no tempo atual
     private updateLayoutForTime(seconds: number) {
-        const textString = this.formatTime(seconds);
+        const textString = formatTime(seconds);
+
 
         // Calcular largura total da string
         let totalWidth = 0;
@@ -459,9 +460,10 @@ export class VideoRenderer {
         }
 
         // 2. Lógica de Comparação
-        const currentString = this.formatTime(remainingInt);
+        const currentString = formatTime(remainingInt);
         // O segundo anterior na verdade é o próximo número na contagem (t+1) pois estamos descendo
-        const previousString = this.formatTime(remainingInt + 1);
+        const previousString = formatTime(remainingInt + 1);
+
 
         // Atualiza layout apenas para calcular posições (RenderItems) do estado ATUAL
         if (remainingInt !== this.lastRenderedSecond) {
@@ -708,7 +710,8 @@ export class VideoRenderer {
     }
 
     private drawWatermark(elapsed: number) {
-        const text = "321-go.vercel.app"; // URL Final (Vercel)
+        const text = WATERMARK_TEXT; // URL Final (Vercel)
+
 
         // Atualiza posição se necessário
         this.updateWatermarkPosition(elapsed);

@@ -42,6 +42,11 @@ Este documento registra a evolução do projeto, as decisões técnicas tomadas 
     - **Usabilidade:**
         - Mídias carregadas (Imagem/Vídeo) agora iniciam com zoom "Cover" automático (preenchendo a tela).
         - Adicionado label "PRÉVIA" na área de edição para gerenciar expectativas do usuário.
+    - **Pente Fino (Refatoração):**
+        - **Limpeza de Código:** Removidas importações não utilizadas e lógica duplicada em `App.tsx`.
+        - **Padronização:** Criado `utils/time.ts` para centralizar formatação de tempo.
+        - **Constantes:** Centralizada configuração de marca d'água (`WATERMARK_TEXT`).
+        - **Segurança:** O código agora está preparado e mais robusto para receber novas features (Áudio).
 
 ---
 

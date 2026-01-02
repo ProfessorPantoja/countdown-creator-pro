@@ -6,7 +6,8 @@ import { useTimer } from './hooks/useTimer';
 import { AppearanceState } from './types';
 import { DEFAULT_FONT_SIZE, RATIO_VALUES } from './constants';
 import { VideoRenderer } from './utils/VideoRenderer'; // Novo Motor
-import { Video, Loader2, StopCircle, Settings, X, Activity, Cpu, CheckCircle, FileVideo, Clock, BarChart, Bug } from 'lucide-react';
+import { Video, StopCircle, Settings, X, Cpu, CheckCircle, Clock, Bug } from 'lucide-react';
+
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 
 import { LandingPage } from './components/LandingPage';
@@ -160,10 +161,8 @@ const AppContent: React.FC = () => {
     setIsRecording(true);
     setLastDownloadUrl(null);
     setLastRenderReport(null);
-    setIsRecording(true);
-    setLastDownloadUrl(null);
-    setLastRenderReport(null);
     setRenderStats({ fps: 0, progress: finalDuration, resolution: appearanceRef.current.resolution || 720 });
+
 
     fpsHistoryRef.current = [];
     renderStartTimeRef.current = Date.now();
@@ -404,8 +403,9 @@ const AppContent: React.FC = () => {
                       download={`contador-${appearance.resolution}p-${duration}s.mp4`}
                       className="flex items-center justify-center gap-2 w-full py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg font-bold transition-colors"
                     >
-                      <FileVideo className="w-4 h-4" /> {t.downloadAgain}
+                      <Video className="w-4 h-4" /> {t.downloadAgain}
                     </a>
+
                   )}
 
                   <button

@@ -9,11 +9,8 @@ interface PreviewProps {
   videoRef: React.RefObject<HTMLVideoElement>;
 }
 
-const formatTime = (seconds: number): string => {
-  const mins = Math.floor(seconds / 60);
-  const secs = seconds % 60;
-  return `${mins}:${secs.toString().padStart(2, '0')}`;
-};
+import { formatTime } from '../utils/time';
+
 
 // Função auxiliar para calcular distância entre dois pontos de toque
 const getDistance = (p1: React.PointerEvent, p2: React.PointerEvent) => {
