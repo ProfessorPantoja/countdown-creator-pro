@@ -70,16 +70,15 @@ export const BackgroundSection: React.FC<BackgroundSectionProps> = ({ appearance
             ? (appearance.customRatioValue || 1)
             : RATIO_VALUES[appearance.aspectRatio as keyof typeof RATIO_VALUES];
 
-        const mediaRatio = appearance.media.aspectRatio;
+        // Fórmulas baseadas em referência 1080p (compatível com Preview/Renderer)
+        // Calcula qual escala é necessária para cobrir altura (1080) e largura (1080 * ratio)
+        const scaleY = 1080 / appearance.media.height;
+        const scaleX = (1080 * canvasRatio) / appearance.media.width;
 
-        let scale = 1;
-        if (canvasRatio > mediaRatio) {
-            scale = canvasRatio / mediaRatio;
-        } else {
-            scale = mediaRatio / canvasRatio;
-        }
+        // Pega o maior valor para garantir cobertura (Cover)
+        const bestScale = Math.max(scaleX, scaleY);
 
-        setAppearance(prev => ({ ...prev, mediaScale: scale * 1.05, mediaPosition: { x: 0, y: 0 } }));
+        setAppearance(prev => ({ ...prev, mediaScale: bestScale, mediaPosition: { x: 0, y: 0 } }));
     };
 
     const handleResetPosition = () => {

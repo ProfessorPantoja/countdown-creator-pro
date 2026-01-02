@@ -60,6 +60,12 @@ const AppContent: React.FC = () => {
     animationType: 'roller-mechanical' // PADRÃO ALTERADO PARA SLOT MACHINE
   });
 
+  // Ref para acessar o estado mais recente dentro de callbacks/closures (Auto-Test)
+  const appearanceRef = useRef(appearance);
+  useEffect(() => {
+    appearanceRef.current = appearance;
+  }, [appearance]);
+
   const { timeLeft, isActive, reset, toggle, setTimeLeft } = useTimer(duration);
   const { t } = useLanguage();
 
@@ -80,13 +86,54 @@ const AppContent: React.FC = () => {
     }
   }, []); // Executa apenas no mount
 
+  // Efeito para Carregar Vídeo Padrão
+  useEffect(() => {
+    if (!appearance.media) {
+      const defaultVideoUrl = '/fundo-aguas-calmas-001.mp4';
+      const tempVideo = document.createElement('video');
+      tempVideo.src = defaultVideoUrl;
+      tempVideo.onloadedmetadata = () => {
+        setAppearance(prev => ({
+          ...prev,
+          backgroundType: 'media',
+          media: {
+            type: 'video',
+            url: defaultVideoUrl,
+            width: tempVideo.videoWidth,
+            height: tempVideo.videoHeight,
+            duration: tempVideo.duration
+          },
+          mediaScale: 1.5, // Zoom Ideal solicitado
+          mediaPosition: { x: 0, y: 0 }
+        }));
+      };
+    }
+  }, []); // Executa apenas uma vez no mount
+
   const toggleAutoTest = () => {
     const newState = !isAutoTestEnabled;
     setIsAutoTestEnabled(newState);
     localStorage.setItem('AUTO_RENDER_TEST', String(newState));
   };
 
-  const startRecording = (overrideDuration?: number) => {
+  // Função auxiliar para aguardar vídeo carregar
+  const waitForVideoReady = async (video: HTMLVideoElement): Promise<void> => {
+    if (video.readyState >= 3) return Promise.resolve(); // HAVE_FUTURE_DATA
+    return new Promise(resolve => {
+      const onCanPlay = () => {
+        video.removeEventListener('canplay', onCanPlay);
+        resolve();
+      };
+      video.addEventListener('canplay', onCanPlay);
+      // Timeout de segurança
+      setTimeout(() => {
+        video.removeEventListener('canplay', onCanPlay);
+        resolve();
+      }, 3000);
+    });
+  };
+
+  const startRecording = async (overrideDuration?: number) => {
     // FIX CRÍTICO: Matar instância anterior se existir
     if (rendererRef.current) {
       console.warn("⚠️ Conflito Detectado: Parando renderizador anterior antes de iniciar novo.");
@@ -95,6 +142,14 @@ const AppContent: React.FC = () => {
     }
 
     if (!canvasRef.current) return;
+
+    // Aguardar vídeo estar pronto se for mídia de vídeo
+    // Usar Ref aqui também para garantir consistência
+    const currentAppearance = appearanceRef.current;
+    if (currentAppearance.backgroundType === 'media' && currentAppearance.media?.type === 'video' && videoElementRef.current) {
+      console.log("⏳ Aguardando vídeo estar pronto...");
+      await waitForVideoReady(videoElementRef.current);
+    }
 
     // FIX CRÍTICO: onClick passa um Evento, então precisamos checar se é NÚMERO
     const finalDuration = typeof overrideDuration === 'number' ? overrideDuration : duration;
@@ -105,7 +160,10 @@ const AppContent: React.FC = () => {
     setIsRecording(true);
     setLastDownloadUrl(null);
     setLastRenderReport(null);
-    setRenderStats({ fps: 0, progress: finalDuration, resolution: appearance.resolution || 720 });
+    setIsRecording(true);
+    setLastDownloadUrl(null);
+    setLastRenderReport(null);
+    setRenderStats({ fps: 0, progress: finalDuration, resolution: appearanceRef.current.resolution || 720 });
 
     fpsHistoryRef.current = [];
     renderStartTimeRef.current = Date.now();
@@ -114,7 +172,7 @@ const AppContent: React.FC = () => {
     rendererRef.current = new VideoRenderer(
       canvasRef.current,
       videoElementRef.current,
-      appearance,
+      appearanceRef.current, // FIX: Usar Ref para evitar Stale Closure no Auto-Test
       finalDuration,
       isPro,
       (remainingTime, stats) => {
@@ -365,8 +423,8 @@ const AppContent: React.FC = () => {
         <ImprovementsModal isOpen={showImprovements} onClose={() => setShowImprovements(false)} />
         <ProModal isOpen={showProModal} onClose={() => setShowProModal(false)} onUpgrade={() => setIsPro(true)} />
 
-        {/* Video Element Oculto para exportação (usado pelo Renderer) */}
-        <video ref={videoElementRef} className="hidden" />
+        {/* Video Element Oculto REMOVIDO: Usamos o ref do Preview para evitar conflitos */}
+        {/* <video ref={videoElementRef} className="hidden" /> */}
       </div>
 
       {/* SEO Landing Page Content (Below the fold) */}

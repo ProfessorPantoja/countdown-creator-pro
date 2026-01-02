@@ -32,6 +32,13 @@ Este documento registra a evolução do projeto, as decisões técnicas tomadas 
     2.  Dinâmica (movimento a cada 5s) para vídeos longos.
     3.  **URL:** Atualizado para `321-go.vercel.app` (Final).
 
+### 🎥 Polimento de Vídeo e UX (Jan/2026)
+- **Escala de Vídeo:** Harmonizada a lógica de coordenadas entre Preview e Renderer (Referência 1080p).
+- **Auto-Resize:** Novo algoritmo inteligente para o botão "Preencher" (Cover) que respeita a resolução real do vídeo.
+- **Experiência de Uso:**
+    - App agora inicia automaticamente com vídeo de fundo relaxante (`fundo-aguas-calmas`).
+    - **Auto-Test Robusto:** Corrigido bug de "gradiente piscante" usando `useRef` para garantir estado atualizado durante renderização automática.
+
 ---
 
 ## 📝 Backlog e Próximos Passos

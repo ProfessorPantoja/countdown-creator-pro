@@ -143,7 +143,7 @@ export class VideoRenderer {
             bgConfig.mediaElement = drawable || undefined;
 
             if (drawable) {
-                const scaleFactor = height / 800;
+                const scaleFactor = height / 1080;
                 const finalScale = this.appearance.mediaScale * scaleFactor;
                 const dw = Math.round(media.width * finalScale);
                 const dh = Math.round(media.height * finalScale);
