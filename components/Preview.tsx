@@ -251,6 +251,11 @@ export const Preview: React.FC<PreviewProps> = ({ appearance, setAppearance, tim
             background: backgroundType === 'gradient' ? backgroundGradient : undefined,
           }}
         >
+          {/* Label de Prévia */}
+          <div className="absolute top-2 left-1/2 -translate-x-1/2 z-50 bg-black/40 backdrop-blur-sm px-3 py-1 rounded-full border border-white/10 pointer-events-none">
+            <span className="text-[10px] uppercase tracking-widest text-white/50 font-medium">PRÉVIA</span>
+          </div>
+
           {backgroundType === 'media' && media && (
             <div
               style={{

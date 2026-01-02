@@ -22,41 +22,63 @@ export const BackgroundSection: React.FC<BackgroundSectionProps> = ({ appearance
                 const video = document.createElement('video');
                 video.preload = 'metadata';
                 video.onloadedmetadata = () => {
-                    setAppearance((prev) => ({
-                        ...prev,
-                        backgroundType: 'media',
-                        media: {
-                            type,
-                            url,
-                            name: file.name,
-                            width: video.videoWidth,
-                            height: video.videoHeight,
-                            aspectRatio: video.videoWidth / video.videoHeight,
-                            duration: video.duration
-                        },
-                        mediaScale: 1,
-                        mediaPosition: { x: 0, y: 0 },
-                        syncVideoToTimer: false // reset sync on new file
-                    }));
+                    setAppearance((prev) => {
+                        // Calcular Auto-Fill (Cover)
+                        const canvasRatio = prev.aspectRatio === 'custom'
+                            ? (prev.customRatioValue || 1)
+                            : RATIO_VALUES[prev.aspectRatio as keyof typeof RATIO_VALUES];
+
+                        const scaleY = 1080 / video.videoHeight;
+                        const scaleX = (1080 * canvasRatio) / video.videoWidth;
+                        const bestScale = Math.max(scaleX, scaleY);
+
+                        return {
+                            ...prev,
+                            backgroundType: 'media',
+                            media: {
+                                type,
+                                url,
+                                name: file.name,
+                                width: video.videoWidth,
+                                height: video.videoHeight,
+                                aspectRatio: video.videoWidth / video.videoHeight,
+                                duration: video.duration
+                            },
+                            mediaScale: bestScale, // Já inicia preenchido!
+                            mediaPosition: { x: 0, y: 0 },
+                            syncVideoToTimer: false
+                        };
+                    });
                 };
                 video.src = url;
             } else {
                 const img = new Image();
                 img.onload = () => {
-                    setAppearance((prev) => ({
-                        ...prev,
-                        backgroundType: 'media',
-                        media: {
-                            type,
-                            url,
-                            name: file.name,
-                            width: img.width,
-                            height: img.height,
-                            aspectRatio: img.width / img.height
-                        },
-                        mediaScale: 1,
-                        mediaPosition: { x: 0, y: 0 }
-                    }));
+                    setAppearance((prev) => {
+                        // Calcular Auto-Fill (Cover)
+                        const canvasRatio = prev.aspectRatio === 'custom'
+                            ? (prev.customRatioValue || 1)
+                            : RATIO_VALUES[prev.aspectRatio as keyof typeof RATIO_VALUES];
+
+                        const scaleY = 1080 / img.height;
+                        const scaleX = (1080 * canvasRatio) / img.width;
+                        const bestScale = Math.max(scaleX, scaleY);
+
+                        return {
+                            ...prev,
+                            backgroundType: 'media',
+                            media: {
+                                type,
+                                url,
+                                name: file.name,
+                                width: img.width,
+                                height: img.height,
+                                aspectRatio: img.width / img.height
+                            },
+                            mediaScale: bestScale, // Já inicia preenchido!
+                            mediaPosition: { x: 0, y: 0 }
+                        };
+                    });
                 };
                 img.src = url;
             }

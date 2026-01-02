@@ -39,6 +39,9 @@ Este documento registra a evolução do projeto, as decisões técnicas tomadas 
     - App agora inicia automaticamente com vídeo de fundo relaxante (`fundo-aguas-calmas`).
     - **Auto-Test Robusto:** Corrigido bug de "gradiente piscante" usando `useRef` para garantir estado atualizado durante renderização automática.
     - **Correção de Preview:** Sincronizado `fontFamily` entre Preview e Render (Preview estava ignorando a seleção de fonte).
+    - **Usabilidade:**
+        - Mídias carregadas (Imagem/Vídeo) agora iniciam com zoom "Cover" automático (preenchendo a tela).
+        - Adicionado label "PRÉVIA" na área de edição para gerenciar expectativas do usuário.
 
 ---
 
