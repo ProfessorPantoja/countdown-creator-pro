@@ -1,5 +1,5 @@
 import React from 'react';
-import { Settings, X, Play, Pause, RotateCcw, Download, Info, Signal, Gauge } from 'lucide-react';
+import { Settings, X, Play, Pause, RotateCcw, Download, Info, Signal, Gauge, Trophy } from 'lucide-react';
 import { AppearanceState } from '../types';
 import { RatioSection } from './controls/RatioSection';
 import { BackgroundSection } from './controls/BackgroundSection';
@@ -17,7 +17,7 @@ interface ControlsProps {
     toggle: () => void;
     reset: () => void;
   };
-  onOpenImprovements: () => void;
+  onOpenPro: () => void;
   onStartRecording: () => void;
   isRecording: boolean;
   onClose?: () => void;
@@ -31,7 +31,7 @@ export const Controls: React.FC<ControlsProps> = ({
   appearance,
   setAppearance,
   timerControls,
-  onOpenImprovements,
+  onOpenPro,
   onStartRecording,
   isRecording,
   onClose,
@@ -148,11 +148,11 @@ export const Controls: React.FC<ControlsProps> = ({
         </button>
 
         <button
-          onClick={onOpenImprovements}
-          className="col-span-2 mt-1 text-xs text-slate-500 hover:text-indigo-400 flex items-center justify-center gap-1 py-1"
+          onClick={onOpenPro}
+          className="col-span-2 mt-1 text-xs font-bold text-yellow-500 hover:text-yellow-400 flex items-center justify-center gap-1 py-1 transition-colors uppercase tracking-widest border border-yellow-500/20 rounded hover:bg-yellow-500/10"
         >
-          <Info className="w-3 h-3" />
-          {t.suggestions}
+          <Trophy className="w-3 h-3 mr-1" />
+          SEJA PRO
         </button>
       </div>
     </div>

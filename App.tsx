@@ -177,26 +177,28 @@ const AppContent: React.FC = () => {
       <div className="flex flex-col md:flex-row h-screen w-full relative">
         <canvas ref={canvasRef} className="fixed top-0 left-0 opacity-0 pointer-events-none -z-50" />
 
-        {/* PRO BUTTON */}
-        <button
-          onClick={() => setShowProModal(true)}
-          className="absolute top-4 right-16 md:right-8 z-30 flex items-center gap-2 bg-gradient-to-r from-yellow-400 to-yellow-600 text-white px-4 py-2 rounded-full shadow-lg font-black tracking-wider text-xs hover:scale-105 transition-transform active:scale-95 border border-yellow-300/30"
-        >
-          <Trophy className="w-4 h-4 fill-white" />
-          {t.proButton || "PRO"}
-        </button>
+        <div className="absolute top-4 right-4 md:right-8 z-30 flex items-center gap-3">
+          {/* AUTO TEST TRIGGER (Debug) */}
+          <button
+            onClick={toggleAutoTest}
+            className={`p-2 rounded-full transition-all border ${isAutoTestEnabled
+              ? 'bg-green-500/20 text-green-400 border-green-500/50 hover:bg-green-500/30'
+              : 'bg-slate-800/50 text-slate-500 border-slate-700 hover:text-slate-300'
+              }`}
+            title={isAutoTestEnabled ? "Auto-Render Ligado (Inicia ao recarregar)" : "Ativar Auto-Render ao Iniciar"}
+          >
+            <Bug className="w-4 h-4" />
+          </button>
 
-        {/* AUTO TEST TRIGGER (Debug) */}
-        <button
-          onClick={toggleAutoTest}
-          className={`absolute top-4 right-36 md:right-28 z-30 p-2 rounded-full transition-all border ${isAutoTestEnabled
-            ? 'bg-green-500/20 text-green-400 border-green-500/50 hover:bg-green-500/30'
-            : 'bg-slate-800/50 text-slate-500 border-slate-700 hover:text-slate-300'
-            }`}
-          title={isAutoTestEnabled ? "Auto-Render Ligado (Inicia ao recarregar)" : "Ativar Auto-Render ao Iniciar"}
-        >
-          <Bug className="w-4 h-4" />
-        </button>
+          {/* PRO BUTTON */}
+          <button
+            onClick={() => setShowProModal(true)}
+            className="flex items-center gap-2 bg-gradient-to-r from-yellow-400 to-yellow-600 text-white px-4 py-2 rounded-full shadow-lg font-black tracking-wider text-xs hover:scale-105 transition-transform active:scale-95 border border-yellow-300/30"
+          >
+            <Trophy className="w-4 h-4 fill-white" />
+            {t.proButton || "PRO"}
+          </button>
+        </div>
 
 
         {/* Mobile Menu Button - Só aparece no Mobile */}
@@ -220,7 +222,7 @@ const AppContent: React.FC = () => {
             appearance={appearance}
             setAppearance={setAppearance}
             timerControls={{ isActive, toggle, reset }}
-            onOpenImprovements={() => setShowImprovements(true)}
+            onOpenPro={() => setShowProModal(true)}
             onStartRecording={startRecording}
             isRecording={isRecording}
             onClose={() => setIsMobileMenuOpen(false)}

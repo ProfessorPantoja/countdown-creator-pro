@@ -62,6 +62,15 @@ export class VideoRenderer {
     private warmupFrames: number = 0;
     private readonly WARMUP_DURATION_FRAMES = 5;
 
+    // --- WATERMARK STATE ---
+    private watermarkY: number = 0;
+    private watermarkX: number = 0;
+    private lastWatermarkMove: number = 0;
+    private readonly WATERMARK_INTERVAL = 5; // Mover a cada 5s
+    private isWatermarkAtTop: boolean = false;
+
+
+
     constructor(
         canvas: HTMLCanvasElement,
         videoElement: HTMLVideoElement | null,
@@ -302,6 +311,9 @@ export class VideoRenderer {
         this.warmupFrames = 0;
         this.lastFpsTime = performance.now();
         this.lastFrameTime = performance.now();
+
+        // Inicializar Posição da Marca D'água (Começa padrão em baixo)
+        this.resetWatermarkPosition();
 
         const stream = this.canvas.captureStream(this.FPS);
         const mimeTypes = [
@@ -650,24 +662,65 @@ export class VideoRenderer {
         }
 
         if (!this.isPro) {
-            this.drawWatermark();
+            // Passar o tempo decorrido para a animação da marca d'água
+            const elapsed = Math.max(0, this.duration - timeLeft);
+            this.drawWatermark(elapsed);
         }
     }
 
-    private drawWatermark() {
-        const text = "Criado com Countdown Creator Pro";
-        const padding = 40;
+    private resetWatermarkPosition() {
+        // Inicializa no canto inferior direito padrão
+        const padding = this.canvas.height * 0.05; // 5% de margem
+        this.watermarkX = this.canvas.width - padding;
+        this.watermarkY = this.canvas.height - padding;
+        this.isWatermarkAtTop = false;
+        this.lastWatermarkMove = 0;
+    }
+
+    private updateWatermarkPosition(elapsed: number) {
+        // Se vídeo curto (< 20s), mantém estático em baixo
+        if (this.duration <= 20) return;
+
+        // Se já passou o tempo, move
+        if (elapsed - this.lastWatermarkMove > this.WATERMARK_INTERVAL) {
+            const padding = this.canvas.height * 0.05;
+
+            // Alternar entre Topo e Base
+            this.isWatermarkAtTop = !this.isWatermarkAtTop;
+
+            // Y: Topo ou Base (com safe area)
+            // Se Topo: padding. Se Base: height - padding
+            this.watermarkY = this.isWatermarkAtTop ? padding + (this.canvas.height * 0.03) : this.canvas.height - padding;
+
+            // X: Aleatório na horizontal (mantendo margem)
+            // Queremos que o texto fique alinhado à direita, então o X é a ancoragem direita.
+            // O X pode variar entre 50% e 100% da largura para não ficar muito no meio
+            const minX = this.canvas.width * 0.6;
+            const maxX = this.canvas.width - padding;
+            this.watermarkX = minX + Math.random() * (maxX - minX);
+
+            this.lastWatermarkMove = elapsed;
+        }
+    }
+
+    private drawWatermark(elapsed: number) {
+        const text = "321.vercel.app"; // URL Temporária (Vercel)
+
+        // Atualiza posição se necessário
+        this.updateWatermarkPosition(elapsed);
 
         this.ctx.save();
-        this.ctx.font = "bold 3vh Inter, sans-serif";
-        this.ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
+        // Math.max garante legibilidade mínima em resoluções baixas
+        const fontSize = Math.max(16, Math.round(this.canvas.height * 0.025));
+        this.ctx.font = `bold ${fontSize}px Inter, sans-serif`;
+        this.ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
         this.ctx.textAlign = "right";
         this.ctx.textBaseline = "bottom";
         this.ctx.shadowColor = "rgba(0,0,0,0.8)";
         this.ctx.shadowBlur = 4;
 
-        // Desenha no canto inferior direito
-        this.ctx.fillText(text, this.canvas.width - padding, this.canvas.height - padding);
+        // Desenha na posição calculada
+        this.ctx.fillText(text, this.watermarkX, this.watermarkY);
         this.ctx.restore();
     }
 
