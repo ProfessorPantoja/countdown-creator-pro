@@ -704,7 +704,7 @@ export class VideoRenderer {
     }
 
     private drawWatermark(elapsed: number) {
-        const text = "321-pro-1.vercel.app"; // URL Final (Vercel)
+        const text = "321-go.vercel.app"; // URL Final (Vercel)
 
         // Atualiza posição se necessário
         this.updateWatermarkPosition(elapsed);

@@ -30,7 +30,7 @@ Este documento registra a evolução do projeto, as decisões técnicas tomadas 
 - **Evolução:**
     1.  Estatíca no canto.
     2.  Dinâmica (movimento a cada 5s) para vídeos longos.
-    3.  **URL:** Atualizado para `321-pro-1.vercel.app` (Final).
+    3.  **URL:** Atualizado para `321-go.vercel.app` (Final).
 
 ---
 
