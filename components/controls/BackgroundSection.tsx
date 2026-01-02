@@ -1,5 +1,5 @@
 import React from 'react';
-import { Layers, Video, Image as ImageIcon, Maximize, Zap } from 'lucide-react';
+import { Layers, Video, Image as ImageIcon, Maximize, Zap, Trash2, RefreshCcw } from 'lucide-react';
 import { AppearanceState, BackgroundType } from '../../types';
 import { SOLID_COLORS, GRADIENTS, RATIO_VALUES } from '../../constants';
 import { useLanguage } from '../../contexts/LanguageContext';
@@ -80,6 +80,20 @@ export const BackgroundSection: React.FC<BackgroundSectionProps> = ({ appearance
         }
 
         setAppearance(prev => ({ ...prev, mediaScale: scale * 1.05, mediaPosition: { x: 0, y: 0 } }));
+    };
+
+    const handleResetPosition = () => {
+        setAppearance(prev => ({ ...prev, mediaPosition: { x: 0, y: 0 }, mediaScale: 1 }));
+    };
+
+    const handleDeleteMedia = () => {
+        setAppearance(prev => ({
+            ...prev,
+            media: null,
+            backgroundType: 'gradient', // volta para gradiente como padrão
+            mediaScale: 1,
+            mediaPosition: { x: 0, y: 0 }
+        }));
     };
 
     return (
@@ -163,7 +177,21 @@ export const BackgroundSection: React.FC<BackgroundSectionProps> = ({ appearance
                                     title="Preenche a tela toda com a mídia"
                                 >
                                     <Maximize className="w-3 h-3" />
-                                    {t.coverButton}
+                                    {t.coverButton && t.coverButton !== "Cover" ? t.coverButton : "PREENCHER"}
+                                </button>
+                                <button
+                                    onClick={handleResetPosition}
+                                    className="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs rounded border border-slate-600 transition-colors flex items-center justify-center"
+                                    title="Resetar Posição"
+                                >
+                                    <RefreshCcw className="w-3 h-3" />
+                                </button>
+                                <button
+                                    onClick={handleDeleteMedia}
+                                    className="px-3 py-1.5 bg-red-900/30 hover:bg-red-900/50 text-red-200 text-xs rounded border border-red-900/50 transition-colors flex items-center justify-center"
+                                    title="Remover Mídia"
+                                >
+                                    <Trash2 className="w-3 h-3" />
                                 </button>
                             </div>
 

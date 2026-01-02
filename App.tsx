@@ -6,7 +6,7 @@ import { useTimer } from './hooks/useTimer';
 import { AppearanceState } from './types';
 import { DEFAULT_FONT_SIZE, RATIO_VALUES } from './constants';
 import { VideoRenderer } from './utils/VideoRenderer'; // Novo Motor
-import { Video, Loader2, StopCircle, Settings, X, Activity, Cpu, CheckCircle, FileVideo, Clock, BarChart } from 'lucide-react';
+import { Video, Loader2, StopCircle, Settings, X, Activity, Cpu, CheckCircle, FileVideo, Clock, BarChart, Bug } from 'lucide-react';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
 
 import { LandingPage } from './components/LandingPage';
@@ -18,8 +18,8 @@ import { Trophy } from 'lucide-react';
 const AppContent: React.FC = () => {
   // ... (rest of the component logic)
 
-  // Configuração Inicial: 7 segundos
-  const [duration, setDuration] = useState<number>(7);
+  // Configuração Inicial: 5 segundos
+  const [duration, setDuration] = useState<number>(5);
   const [showImprovements, setShowImprovements] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -37,6 +37,10 @@ const AppContent: React.FC = () => {
   const [lastRenderReport, setLastRenderReport] = useState<{ avgFps: number, totalTime: number } | null>(null);
   const fpsHistoryRef = useRef<number[]>([]);
   const renderStartTimeRef = useRef<number>(0);
+  // Auto-Test Mode State
+  const [isAutoTestEnabled, setIsAutoTestEnabled] = useState(() => {
+    return localStorage.getItem('AUTO_RENDER_TEST') === 'true';
+  });
 
   const [appearance, setAppearance] = useState<AppearanceState>({
     fontSize: DEFAULT_FONT_SIZE,
@@ -65,15 +69,35 @@ const AppContent: React.FC = () => {
   // Instância do Motor
   const rendererRef = useRef<VideoRenderer | null>(null);
 
-  const startRecording = () => {
+  // Efeito para Auto-Start
+  useEffect(() => {
+    if (isAutoTestEnabled) {
+      const timer = setTimeout(() => {
+        console.log("⚡ Auto-Test: Iniciando Renderização de 5s...");
+        startRecording(5); // Força 5 segundos
+      }, 1500); // 1.5s delay para garantir carregamento
+      return () => clearTimeout(timer);
+    }
+  }, []); // Executa apenas no mount
+
+  const toggleAutoTest = () => {
+    const newState = !isAutoTestEnabled;
+    setIsAutoTestEnabled(newState);
+    localStorage.setItem('AUTO_RENDER_TEST', String(newState));
+  };
+
+  const startRecording = (overrideDuration?: number) => {
     if (!canvasRef.current) return;
 
+    const finalDuration = overrideDuration || duration;
+
     setIsMobileMenuOpen(false);
-    reset(); // Reseta timer visual
+    if (!overrideDuration) reset(); // Reseta timer visual apenas se não for auto-test (para não bagunçar visual)
+
     setIsRecording(true);
     setLastDownloadUrl(null);
     setLastRenderReport(null);
-    setRenderStats({ fps: 0, progress: duration, resolution: appearance.resolution || 720 });
+    setRenderStats({ fps: 0, progress: finalDuration, resolution: appearance.resolution || 720 });
 
     fpsHistoryRef.current = [];
     renderStartTimeRef.current = Date.now();
@@ -83,7 +107,7 @@ const AppContent: React.FC = () => {
       canvasRef.current,
       videoElementRef.current,
       appearance,
-      duration,
+      finalDuration,
       isPro,
       (remainingTime, stats) => {
         // Callback de progresso
@@ -152,6 +176,18 @@ const AppContent: React.FC = () => {
         >
           <Trophy className="w-4 h-4 fill-white" />
           {t.proButton || "PRO"}
+        </button>
+
+        {/* AUTO TEST TRIGGER (Debug) */}
+        <button
+          onClick={toggleAutoTest}
+          className={`absolute top-4 right-36 md:right-28 z-30 p-2 rounded-full transition-all border ${isAutoTestEnabled
+            ? 'bg-green-500/20 text-green-400 border-green-500/50 hover:bg-green-500/30'
+            : 'bg-slate-800/50 text-slate-500 border-slate-700 hover:text-slate-300'
+            }`}
+          title={isAutoTestEnabled ? "Auto-Render Ligado (Inicia ao recarregar)" : "Ativar Auto-Render ao Iniciar"}
+        >
+          <Bug className="w-4 h-4" />
         </button>
 
 

@@ -255,8 +255,16 @@ export class VideoRenderer {
         this.currentRenderItems = [];
         let currentX = startX;
 
+        // Validar glyphMap
+        const keys = Object.keys(this.glyphMap);
+        if (keys.length === 0) {
+            console.warn("⚠️ GlyphMap está vazio! Tentando reconstruir...");
+            this.buildGlyphCache();
+        }
+
         for (const char of textString) {
-            const glyph = this.glyphMap[char];
+            // Fallback se char não existir (não deve ocorrer)
+            const glyph = this.glyphMap[char] || this.glyphMap['0'];
             if (glyph) {
                 this.currentRenderItems.push({
                     char,
@@ -323,8 +331,13 @@ export class VideoRenderer {
             this.onComplete(url);
         };
 
-        // Safety timeout in case loop dies
-        // this.activeTimeout = setTimeout(() => this.stop(), (this.duration + 5) * 1000);
+        // Safety timeout in case loop dies (GLOBAL FAILURE SAFEGUARD)
+        setTimeout(() => {
+            if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
+                console.warn("⚠️ Watchdog: Forçando parada por tempo excedido.");
+                this.stop();
+            }
+        }, (this.duration + 5) * 1000);
 
         if (this.appearance.backgroundType === 'media' && this.appearance.media?.type === 'video' && this.videoElement) {
             this.videoElement.currentTime = 0;
@@ -368,7 +381,16 @@ export class VideoRenderer {
             return;
         }
 
+        // Se passamos do tempo de warmup e recorder não está gravando, algo deu errado.
+        // Tentar iniciar novamente ou ignorar (para pelo menos desenhar na tela)
         if (this.mediaRecorder.state !== 'recording') {
+            // Se já passamos muito tempo tentando iniciar, abortamos o loop de espera ativa
+            const elapsedSinceStart = (now - this.startTime) / 1000;
+            if (elapsedSinceStart > 1.0) {
+                console.warn("⚠️ MediaRecorder não iniciou. Forçando start ou continuando...");
+                if (this.mediaRecorder.state === 'inactive') this.mediaRecorder.start();
+            }
+            // Retornar mas continuar loop para checar novamente
             this.animationFrameId = requestAnimationFrame(this.loop);
             return;
         }
@@ -386,8 +408,10 @@ export class VideoRenderer {
             this.frameCount = 0;
         }
 
-        // CORREÇÃO: Buffer aumentado para 2.0s para garantir finalização suave e captura do 00:00
+        // CORREÇÃO: Buffer aumentado para 2.0s
+        // SAFEGUARD: Sempre checar tempo, independente do estado do recorder
         if (elapsed >= this.duration + 2.0) {
+            console.log("✅ Renderização finalizada por tempo.");
             this.stop();
             return;
         }
