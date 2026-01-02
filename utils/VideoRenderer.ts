@@ -491,9 +491,11 @@ export class VideoRenderer {
             // Animação acontece nos primeiros 50% do segundo para ser "Snappy"
             // T vai de 0 a 1 durante a animação
             let t = 0;
+            // CORREÇÃO: Animação agora acontece no FINAL do segundo (0.6 -> 0.1)
+            // Isso garante que o número (ex: 5) fique estático por 0.4s antes de começar a mudar
             const animDuration = 0.5; // 500ms
-            const startThreshold = 1.0;
-            const endThreshold = 1.0 - animDuration;
+            const startThreshold = 0.6; // Começa quando faltar 0.6s (fraction 0.6)
+            const endThreshold = 0.6 - animDuration; // Termina em 0.1s
 
             if (fraction <= startThreshold && fraction > endThreshold) {
                 t = (startThreshold - fraction) / animDuration; // 0 -> 1
