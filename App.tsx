@@ -87,9 +87,17 @@ const AppContent: React.FC = () => {
   };
 
   const startRecording = (overrideDuration?: number) => {
+    // FIX CRÍTICO: Matar instância anterior se existir
+    if (rendererRef.current) {
+      console.warn("⚠️ Conflito Detectado: Parando renderizador anterior antes de iniciar novo.");
+      rendererRef.current.stop();
+      rendererRef.current = null;
+    }
+
     if (!canvasRef.current) return;
 
-    const finalDuration = overrideDuration || duration;
+    // FIX CRÍTICO: onClick passa um Evento, então precisamos checar se é NÚMERO
+    const finalDuration = typeof overrideDuration === 'number' ? overrideDuration : duration;
 
     setIsMobileMenuOpen(false);
     if (!overrideDuration) reset(); // Reseta timer visual apenas se não for auto-test (para não bagunçar visual)

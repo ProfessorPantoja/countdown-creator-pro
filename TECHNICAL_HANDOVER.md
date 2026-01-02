@@ -66,3 +66,31 @@ Se você abrir um novo chat, entregue este resumo:
 > "O projeto é um React App (Vite + Tailwind). O estado central fica em `App.tsx`. O componente visual é `Preview.tsx`. O motor de exportação é `VideoRenderer.ts` (Canvas API pura). O código foi revertido para o commit `431f6f1` (estável). A próxima tarefa pendente é reimplementar com cuidado os botões de 'Reset Position' e 'Delete Media' em `BackgroundSection.tsx` sem quebrar a sintaxe JSX."
 
 ---
+
+## 4. Guia de Desenvolvimento Diário (Workflow)
+
+Perguntas Frequentes sobre o fluxo de trabalho (Vite/React):
+
+### 🔄 Quando atualizar o quê?
+
+1.  **Edição de Código (Live):**
+    *   **O que acontece:** Você altera um arquivo `.tsx` ou `.css`.
+    *   **Ação:** Apenas Salve (Ctrl+S).
+    *   **Resultado:** O **HMR (Hot Module Replacement)** atualiza apenas o pedaço que mudou instantaneamente. Não precisa fazer nada.
+
+2.  **Recarregar a Página (F5):**
+    *   **Quando usar:** Se você sentir que o app "travou", se o timer ficar negativo de propósito, ou se você quiser limpar os dados de teste da memória (ex: resetar o Auto-Test).
+    *   **Por quê:** Garante que o estado da memória (RAM do navegador) comece limpo.
+
+3.  **Reiniciar o Terminal (`npm run dev`):**
+    *   **Quando usar:** Apenas quando você modificar arquivos de **Configuração** (`vite.config.ts`, `.env`, `package.json`) ou instalar novas bibliotecas (`npm install`).
+    *   **Por quê:** Essas configurações são lidas apenas na hora que o servidor liga.
+
+### 🛡️ Padrão de Segurança (Git)
+
+Para evitar quebrar o que já funciona, adotaremos o seguinte fluxo:
+
+1.  **Coding:** Faço a alteração.
+2.  **Testing:** Você testa no Localhost.
+3.  **COMMIT (Checkpoint Prata):** Se funcionou, salvamos localmente (`git commit`). Isso cria um ponto de retorno seguro.
+4.  **PUSH (Checkpoint Ouro):** Apenas enviamos para a nuvem (GitHub/Deploy) quando um ciclo completo de funcionalidades estiver 100% pronto e estável. Isso evita enviar código quebrado para a produção.

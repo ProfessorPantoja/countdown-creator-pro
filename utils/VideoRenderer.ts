@@ -74,7 +74,7 @@ export class VideoRenderer {
         this.canvas = canvas;
         this.videoElement = videoElement;
         this.appearance = appearance;
-        this.duration = duration;
+        this.duration = Number(duration); // FIX: Garantir que é número para evitar "5" + 2 = "52"
         this.isPro = isPro;
         this.onProgress = onProgress;
         this.onComplete = onComplete;
