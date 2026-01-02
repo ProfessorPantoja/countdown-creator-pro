@@ -21,12 +21,13 @@ const getDistance = (p1: React.PointerEvent, p2: React.PointerEvent) => {
 };
 
 export const Preview: React.FC<PreviewProps> = ({ appearance, setAppearance, timeLeft, videoRef }) => {
-  const { 
-    aspectRatio, 
+  const {
+    aspectRatio,
     customRatioValue,
-    fontSize, 
-    fontColor, 
-    fontShadow, 
+    fontSize,
+    fontFamily, // FIX: Extrair fontFamily
+    fontColor,
+    fontShadow,
     textPosition,
     backgroundType,
     backgroundColor,
@@ -41,14 +42,14 @@ export const Preview: React.FC<PreviewProps> = ({ appearance, setAppearance, tim
   const activePointers = useRef<Map<number, React.PointerEvent>>(new Map());
   const prevPinchDistRef = useRef<number | null>(null);
   const lastDragPosRef = useRef<{ x: number, y: number } | null>(null);
-  
+
   // Refs para os elementos DOM
   const wrapperRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  
+
   // Estado para armazenar o tamanho disponível na tela
   const [wrapperSize, setWrapperSize] = useState({ width: 0, height: 0 });
-  
+
   const currentMediaPosRef = useRef(mediaPosition);
   const currentTextPosRef = useRef(textPosition);
   const currentFontSizeRef = useRef(fontSize);
@@ -78,7 +79,7 @@ export const Preview: React.FC<PreviewProps> = ({ appearance, setAppearance, tim
   const handlePointerDown = (e: React.PointerEvent) => {
     // Captura o ponteiro para garantir rastreamento mesmo se sair do elemento
     (e.target as Element).setPointerCapture(e.pointerId);
-    
+
     // Armazena o evento do ponteiro
     activePointers.current.set(e.pointerId, e);
 
@@ -86,7 +87,7 @@ export const Preview: React.FC<PreviewProps> = ({ appearance, setAppearance, tim
     // Se clicou direto no span do texto, é texto. Caso contrário, assume mídia/fundo.
     const targetId = (e.target as HTMLElement).id;
     const isText = targetId === 'timer-display';
-    
+
     // Se for o primeiro dedo, define o alvo e a posição inicial
     if (activePointers.current.size === 1) {
       if (isText) {
@@ -112,10 +113,10 @@ export const Preview: React.FC<PreviewProps> = ({ appearance, setAppearance, tim
 
       if (prevPinchDistRef.current) {
         const delta = dist - prevPinchDistRef.current;
-        
+
         // Ajusta sensibilidade do zoom
-        const zoomSensitivity = 1; 
-        
+        const zoomSensitivity = 1;
+
         if (dragTarget === 'text') {
           // Zoom no Texto
           const newSize = Math.max(MIN_FONT_SIZE, Math.min(MAX_FONT_SIZE, currentFontSizeRef.current + delta * zoomSensitivity));
@@ -129,9 +130,9 @@ export const Preview: React.FC<PreviewProps> = ({ appearance, setAppearance, tim
       }
 
       prevPinchDistRef.current = dist;
-      
+
       // Reseta a referência de arrasto para evitar "pulo" ao voltar para 1 dedo
-      lastDragPosRef.current = null; 
+      lastDragPosRef.current = null;
       return;
     }
 
@@ -146,21 +147,21 @@ export const Preview: React.FC<PreviewProps> = ({ appearance, setAppearance, tim
       if (dragTarget === 'media') {
         setAppearance(prev => ({
           ...prev,
-          mediaPosition: { 
-            x: currentMediaPosRef.current.x + deltaX, 
-            y: currentMediaPosRef.current.y + deltaY 
+          mediaPosition: {
+            x: currentMediaPosRef.current.x + deltaX,
+            y: currentMediaPosRef.current.y + deltaY
           }
         }));
       } else if (dragTarget === 'text' && containerRef.current) {
         const w = containerRef.current.clientWidth;
         const h = containerRef.current.clientHeight;
-        
+
         // Move em porcentagem relativa ao container
         setAppearance(prev => ({
           ...prev,
-          textPosition: { 
-            x: currentTextPosRef.current.x + (deltaX / w) * 100, 
-            y: currentTextPosRef.current.y + (deltaY / h) * 100 
+          textPosition: {
+            x: currentTextPosRef.current.x + (deltaX / w) * 100,
+            y: currentTextPosRef.current.y + (deltaY / h) * 100
           }
         }));
       }
@@ -178,7 +179,7 @@ export const Preview: React.FC<PreviewProps> = ({ appearance, setAppearance, tim
       setDragTarget(null);
       prevPinchDistRef.current = null;
       lastDragPosRef.current = null;
-    } 
+    }
     // Se soltou um dedo mas sobrou outro (terminou pinça, continua arrasto)
     else if (activePointers.current.size === 1) {
       prevPinchDistRef.current = null;
@@ -199,39 +200,39 @@ export const Preview: React.FC<PreviewProps> = ({ appearance, setAppearance, tim
   // --- LÓGICA DE RENDERIZAÇÃO ---
 
   const ratioValue = aspectRatio === 'custom' ? (customRatioValue || 1) : RATIO_VALUES[aspectRatio as keyof typeof RATIO_VALUES];
-  
+
   let boxWidth = 0;
   let boxHeight = 0;
 
   if (wrapperSize.width > 0 && wrapperSize.height > 0) {
-      const wrapperRatio = wrapperSize.width / wrapperSize.height;
-      
-      if (ratioValue > wrapperRatio) {
-          boxWidth = wrapperSize.width;
-          boxHeight = wrapperSize.width / ratioValue;
-      } else {
-          boxHeight = wrapperSize.height;
-          boxWidth = wrapperSize.height * ratioValue;
-      }
+    const wrapperRatio = wrapperSize.width / wrapperSize.height;
+
+    if (ratioValue > wrapperRatio) {
+      boxWidth = wrapperSize.width;
+      boxHeight = wrapperSize.width / ratioValue;
+    } else {
+      boxHeight = wrapperSize.height;
+      boxWidth = wrapperSize.height * ratioValue;
+    }
   }
 
   // Escala para renderização do texto (simulando 1080p)
   const previewScaleFactor = boxHeight / 1080;
-  const safeScale = previewScaleFactor > 0 ? previewScaleFactor : 0.001; 
+  const safeScale = previewScaleFactor > 0 ? previewScaleFactor : 0.001;
   // Proteção contra NaN ou valores inválidos
   const safeFontSize = isNaN(fontSize) || fontSize < MIN_FONT_SIZE ? MIN_FONT_SIZE : fontSize;
   const scaledFontSize = safeFontSize * safeScale;
 
   return (
     <div ref={wrapperRef} className="w-full h-full flex items-center justify-center select-none overflow-hidden touch-none relative bg-slate-950">
-      
-      <div 
+
+      <div
         ref={containerRef}
         id="preview-container"
         className="relative shadow-2xl overflow-hidden bg-slate-900 border border-slate-700/50"
         style={{
-          width: boxWidth > 0 ? boxWidth : '100%', 
-          height: boxHeight > 0 ? boxHeight : 'auto', 
+          width: boxWidth > 0 ? boxWidth : '100%',
+          height: boxHeight > 0 ? boxHeight : 'auto',
           cursor: dragTarget ? 'grabbing' : 'grab'
         }}
         // Eventos agora no container pai para capturar tudo
@@ -243,7 +244,7 @@ export const Preview: React.FC<PreviewProps> = ({ appearance, setAppearance, tim
         onWheel={handleWheel}
       >
         {/* Background Layer */}
-        <div 
+        <div
           className="absolute inset-0 w-full h-full flex items-center justify-center overflow-hidden pointer-events-none"
           style={{
             backgroundColor: backgroundType === 'solid' ? backgroundColor : undefined,
@@ -251,7 +252,7 @@ export const Preview: React.FC<PreviewProps> = ({ appearance, setAppearance, tim
           }}
         >
           {backgroundType === 'media' && media && (
-            <div 
+            <div
               style={{
                 transform: `translate(${mediaPosition.x * safeScale}px, ${mediaPosition.y * safeScale}px) scale(${mediaScale * safeScale})`,
                 width: media.width,
@@ -264,23 +265,23 @@ export const Preview: React.FC<PreviewProps> = ({ appearance, setAppearance, tim
                 willChange: 'transform' // Otimização de renderização
               }}
             >
-               {media.type === 'video' ? (
-                <video 
-                  ref={videoRef} 
-                  src={media.url} 
-                  width={media.width} 
+              {media.type === 'video' ? (
+                <video
+                  ref={videoRef}
+                  src={media.url}
+                  width={media.width}
                   height={media.height}
-                  autoPlay loop muted playsInline 
-                  className="w-full h-full pointer-events-none block object-contain" 
+                  autoPlay loop muted playsInline
+                  className="w-full h-full pointer-events-none block object-contain"
                 />
               ) : (
-                <img 
-                  id="preview-image" 
-                  src={media.url} 
-                  width={media.width} 
+                <img
+                  id="preview-image"
+                  src={media.url}
+                  width={media.width}
                   height={media.height}
-                  alt="Fundo" 
-                  className="w-full h-full pointer-events-none block object-contain" 
+                  alt="Fundo"
+                  className="w-full h-full pointer-events-none block object-contain"
                 />
               )}
             </div>
@@ -294,6 +295,7 @@ export const Preview: React.FC<PreviewProps> = ({ appearance, setAppearance, tim
             className="font-bold tabular-nums leading-none tracking-tighter absolute select-none pointer-events-auto touch-none"
             style={{
               fontSize: `${scaledFontSize}px`,
+              fontFamily: fontFamily, // FIX: Aplicar fontFamily selecionada
               color: fontColor,
               textShadow: fontShadow ? `0 ${4 * safeScale}px ${12 * safeScale}px rgba(0,0,0,0.8)` : 'none',
               left: `${50 + textPosition.x}%`,

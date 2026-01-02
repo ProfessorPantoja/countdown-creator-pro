@@ -38,6 +38,7 @@ Este documento registra a evolução do projeto, as decisões técnicas tomadas 
 - **Experiência de Uso:**
     - App agora inicia automaticamente com vídeo de fundo relaxante (`fundo-aguas-calmas`).
     - **Auto-Test Robusto:** Corrigido bug de "gradiente piscante" usando `useRef` para garantir estado atualizado durante renderização automática.
+    - **Correção de Preview:** Sincronizado `fontFamily` entre Preview e Render (Preview estava ignorando a seleção de fonte).
 
 ---
 

@@ -283,6 +283,8 @@ export class VideoRenderer {
                     h: this.glyphHeight,
                     sourceX: glyph.x
                 });
+
+                // Avança cursor + espaçamento negativo
                 currentX += glyph.w;
             }
         }

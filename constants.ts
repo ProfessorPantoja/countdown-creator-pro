@@ -2,13 +2,13 @@ import { AspectRatio, AnimationType } from './types';
 
 // We will use numeric ratios for calculations, but keep string labels for UI
 export const RATIO_VALUES: Record<Exclude<AspectRatio, 'custom'>, number> = {
-  '16:9': 16/9,
-  '9:16': 9/16,
-  '4:5': 4/5,
-  '5:4': 5/4,
+  '16:9': 16 / 9,
+  '9:16': 9 / 16,
+  '4:5': 4 / 5,
+  '5:4': 5 / 4,
   '1:1': 1,
-  '4:3': 4/3,
-  '21:9': 21/9,
+  '4:3': 4 / 3,
+  '21:9': 21 / 9,
 };
 
 export const RATIO_LABELS: Record<AspectRatio, string> = {
@@ -43,7 +43,7 @@ export const ANIMATION_TYPES: Record<AnimationType, string> = {
   'pop': 'Pop / Explosão'
 };
 
-export const DEFAULT_FONT_SIZE = 120;
+export const DEFAULT_FONT_SIZE = 200
 export const MIN_FONT_SIZE = 20;
 export const MAX_FONT_SIZE = 1500;
 
